@@ -116,7 +116,9 @@ Fiesta<DepthMsgType, PoseMsgType>::Fiesta(ros::NodeHandle node, tf::TransformLis
      // For Jie Bao
 //     transform_sub_ = node.subscribe("/vins_estimator/camera_pose", 10, &Fiesta::PoseCallback, this);
 //     depth_sub_ = node.subscribe("/camera/depth/image_rect_raw", 10, &Fiesta::DepthCallback, this);
+#ifndef USE_ROS_TF
     transform_sub_ = node.subscribe("transform", 10, &Fiesta::PoseCallback, this);
+#endif
     depth_sub_ = node.subscribe("depth", 10, &Fiesta::DepthCallback, this);
 
      // Cow_and_Lady
