@@ -41,6 +41,11 @@ void fiesta::Parameters::SetParameters(const ros::NodeHandle &node) {
   node.param<double>("depth_filter_min_dist", depth_filter_min_dist_, 0.1f);
   node.param<int>("depth_filter_margin", depth_filter_margin_, 0);
 
+  // Added code
+  node.param<std::string>("world_frame", world_frame_, std::string("odom_frame"));
+  node.param<std::string>("camera_frame", camera_frame_, std::string("d400_link"));
+  // End added code
+
 #ifdef HASH_TABLE
   l_cornor_ << -100.f, -100.f, -100.f;
     r_cornor_ << 100.f, 100.f, 100.f;

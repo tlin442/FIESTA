@@ -13,6 +13,7 @@
 #include <pcl_conversions/pcl_conversions.h>
 #include <thread>
 #include <type_traits>
+#include <tf/transform_listener.h>
 
 #include <ros/ros.h>
 #include <geometry_msgs/PoseStamped.h>
@@ -54,6 +55,8 @@ private:
     std::queue<DepthMsgType> depth_queue_;
     DepthMsgType sync_depth_;
 
+    tf::TransformListener* tf_listener_;
+
     cv::Mat img_[2];
     Eigen::Matrix4d transform_, last_transform_;
     uint image_cnt_ = 0, esdf_cnt_ = 0, tot_ = 0;
@@ -80,13 +83,14 @@ private:
 
     void UpdateEsdfEvent(const ros::TimerEvent & /*event*/);
 public:
-    Fiesta(ros::NodeHandle node);
+    Fiesta(ros::NodeHandle node, tf::TransformListener* tf_listener);
     ~Fiesta();
 };
 
 template<class DepthMsgType, class PoseMsgType>
-Fiesta<DepthMsgType, PoseMsgType>::Fiesta(ros::NodeHandle node) {
+Fiesta<DepthMsgType, PoseMsgType>::Fiesta(ros::NodeHandle node, tf::TransformListener* tf_listener) {
      parameters_.SetParameters(node);
+     tf_listener_ = tf_listener;
 #ifdef HASH_TABLE
      esdf_map_ = new ESDFMap(Eigen::Vector3d(0, 0, 0), parameters_.resolution_, parameters_.reserved_size_);
 #ifdef SIGNED_NEEDED
@@ -150,17 +154,17 @@ void Fiesta<DepthMsgType, PoseMsgType>::Visualization(ESDFMap *esdf_map, bool gl
                esdf_map->SetUpdateRange(cur_pos_ - parameters_.radius_, cur_pos_ + parameters_.radius_, false);
 
           sensor_msgs::PointCloud pc;
-          esdf_map->GetPointCloud(pc, parameters_.vis_lower_bound_, parameters_.vis_upper_bound_);
+          esdf_map->GetPointCloud(pc, parameters_.vis_lower_bound_, parameters_.vis_upper_bound_, parameters_.world_frame_);
           occupancy_pub_.publish(pc);
 
           visualization_msgs::Marker slice_marker;
           esdf_map->GetSliceMarker(slice_marker, parameters_.slice_vis_level_, 100,
-                                   Eigen::Vector4d(0, 1.0, 0, 1), parameters_.slice_vis_max_dist_);
+                                   Eigen::Vector4d(0, 1.0, 0, 1), parameters_.slice_vis_max_dist_, parameters_.world_frame_);
           slice_pub_.publish(slice_marker);
      }
      if (!text.empty()) {
           visualization_msgs::Marker marker;
-          marker.header.frame_id = "world";
+          marker.header.frame_id = parameters_.world_frame_;
           marker.header.stamp = ros::Time::now();
           marker.id = 3456;
           marker.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
@@ -388,6 +392,7 @@ void Fiesta<DepthMsgType, PoseMsgType>::SynchronizationAndProcess() {
      while (!depth_queue_.empty()) {
           bool new_pos = false;
           depth_time = depth_queue_.front()->header.stamp;
+#ifndef USE_ROS_TF
           while (transform_queue_.size() > 1 &&
               std::get<0>(transform_queue_.front()) <= depth_time + ros::Duration(time_delay)) {
                sync_pos_ = std::get<1>(transform_queue_.front());
@@ -399,6 +404,24 @@ void Fiesta<DepthMsgType, PoseMsgType>::SynchronizationAndProcess() {
               || std::get<0>(transform_queue_.front()) <= depth_time + ros::Duration(time_delay)) {
                break;
           }
+#else
+          tf::StampedTransform world_to_camera;
+          try{
+               tf_listener_->waitForTransform(parameters_.world_frame_, parameters_.camera_frame_, depth_time, ros::Duration(0.04));
+               tf_listener_->lookupTransform(parameters_.world_frame_, parameters_.camera_frame_, depth_time, world_to_camera);
+               new_pos = true;
+
+               sync_pos_(0) = world_to_camera.getOrigin().x();
+               sync_pos_(1) = world_to_camera.getOrigin().y();
+               sync_pos_(2) = world_to_camera.getOrigin().z();
+
+               tf::Quaternion q = world_to_camera.getRotation();
+               sync_q_ = Eigen::Quaterniond(q.getW(), q.getX(), q.getY(), q.getZ());
+               
+          }catch(tf::TransformException ex){
+               ROS_ERROR("Failed to lookup tf: %s", ex.what());
+          }
+#endif
           if (!new_pos) {
                depth_queue_.pop();
                continue;

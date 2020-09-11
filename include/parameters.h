@@ -7,10 +7,11 @@
 #include <ros/ros.h>
 #include <Eigen/Eigen>
 #define PROBABILISTIC
-//#define HASH_TABLE
+#define HASH_TABLE
 #define BLOCK
 #define BITWISE
 #define DEBUG
+#define USE_ROS_TF
 //#define SIGNED_NEEDED
 
 namespace fiesta {
@@ -162,6 +163,9 @@ struct Parameters {
   // transforms
   Eigen::Matrix4d T_B_C_, T_D_B_;
 
+  // Additional parameters
+  // Frames for world and uav
+  std::string world_frame_, camera_frame_;
 
   void SetParameters(const ros::NodeHandle &node);
 };

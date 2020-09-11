@@ -141,8 +141,8 @@ class ESDFMap {
   double GetDistWithGradTrilinear(Eigen::Vector3d pos, Eigen::Vector3d &grad);
 
 // Visualization
-  void GetPointCloud(sensor_msgs::PointCloud &m, int vis_lower_bound, int vis_upper_bound);
-  void GetSliceMarker(visualization_msgs::Marker &m, int slice, int id, Eigen::Vector4d color, double max_dist);
+  void GetPointCloud(sensor_msgs::PointCloud &m, int vis_lower_bound, int vis_upper_bound, std::string world_frame);
+  void GetSliceMarker(visualization_msgs::Marker &m, int slice, int id, Eigen::Vector4d color, double max_dist, std::string world_frame);
 
 // Local Range
   void SetUpdateRange(Eigen::Vector3d min_pos, Eigen::Vector3d max_pos, bool new_vec = true);
