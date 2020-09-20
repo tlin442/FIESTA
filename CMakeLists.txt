@@ -71,3 +71,23 @@ target_link_libraries(test_fiesta
         ${OpenCV_LIBS}
         )
 
+# Export FIESTA as a library so we can keep things separate
+add_library(fiesta 
+        src/parameters.cpp
+        src/timing.cc
+        src/raycast.cpp
+        src/ESDFMap.cpp
+)
+
+target_link_libraries(fiesta
+        ${catkin_LIBRARIES}
+        ${PCL_LIBRARIES}
+        ${OpenCV_LIBS}
+)
+
+catkin_package(INCLUDE_DIRS include LIBRARIES fiesta)
+
+install(TARGETS fiesta
+ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION})
