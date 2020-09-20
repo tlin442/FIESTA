@@ -52,15 +52,6 @@ class ESDFMap {
   bool Exist(const int &idx);
   double Dist(Eigen::Vector3i a, Eigen::Vector3i b);
 
-  // parameters & methods for conversion between Pos, Vox & Idx
-  bool PosInMap(Eigen::Vector3d pos);
-  bool VoxInRange(Eigen::Vector3i vox, bool current_vec = true);
-  void Vox2Pos(Eigen::Vector3i vox, Eigen::Vector3d &pos);
-  int Vox2Idx(Eigen::Vector3i vox);
-  int Vox2Idx(Eigen::Vector3i vox, int sub_sampling_factor);
-  void Pos2Vox(Eigen::Vector3d pos, Eigen::Vector3i &vox);
-  Eigen::Vector3i Idx2Vox(int idx);
-
   // HASH TABLE related
 #ifdef HASH_TABLE
   // Increase the capacity from old_size to new_size, and change the old_size to new_size.
@@ -134,6 +125,15 @@ class ESDFMap {
   int SetOccupancy(Eigen::Vector3i vox, int occ);
   int GetOccupancy(Eigen::Vector3d pos);
   int GetOccupancy(Eigen::Vector3i pos_id);
+
+// parameters & methods for conversion between Pos, Vox & Idx
+  bool PosInMap(Eigen::Vector3d pos);
+  bool VoxInRange(Eigen::Vector3i vox, bool current_vec = true);
+  void Vox2Pos(Eigen::Vector3i vox, Eigen::Vector3d &pos);
+  int Vox2Idx(Eigen::Vector3i vox);
+  int Vox2Idx(Eigen::Vector3i vox, int sub_sampling_factor);
+  void Pos2Vox(Eigen::Vector3d pos, Eigen::Vector3i &vox);
+  Eigen::Vector3i Idx2Vox(int idx);
 
 // Distance Field Management
   double GetDistance(Eigen::Vector3d pos);
