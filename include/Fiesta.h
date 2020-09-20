@@ -84,8 +84,14 @@ private:
     void UpdateEsdfEvent(const ros::TimerEvent & /*event*/);
 public:
     Fiesta(ros::NodeHandle node, tf::TransformListener* tf_listener);
+    ESDFMap* GetESDFMapPointer();
     ~Fiesta();
 };
+
+template<class DepthMsgType, class PoseMsgType>
+ESDFMap* Fiesta<DepthMsgType, PoseMsgType>::GetESDFMapPointer(){
+     return esdf_map_;
+}
 
 template<class DepthMsgType, class PoseMsgType>
 Fiesta<DepthMsgType, PoseMsgType>::Fiesta(ros::NodeHandle node, tf::TransformListener* tf_listener) {
@@ -543,7 +549,7 @@ void Fiesta<DepthMsgType, PoseMsgType>::UpdateEsdfEvent(const ros::TimerEvent & 
             inv_esdf_map_->UpdateESDF();
 #endif
           update_esdf_timer.Stop();
-          timing::Timing::Print(std::cout);
+          //timing::Timing::Print(std::cout);
      }
 //    ros::Time t2 = ros::Time::now();
 
