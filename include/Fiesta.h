@@ -447,7 +447,7 @@ void Fiesta<DepthMsgType, PoseMsgType>::SynchronizationAndProcess() {
           transform_.block<3, 1>(0, 3) = sync_pos_;
           transform_(3, 0) = transform_(3, 1) = transform_(3, 2) = 0;
           transform_(3, 3) = 1;
-          transform_ = transform_*parameters_.T_D_B_*parameters_.T_B_C_;
+          //transform_ = transform_*parameters_.T_D_B_*parameters_.T_B_C_;
           raycast_origin_ = Eigen::Vector3d(transform_(0, 3), transform_(1, 3), transform_(2, 3))/transform_(3, 3);
 
           if constexpr(std::is_same<DepthMsgType, sensor_msgs::Image::ConstPtr>::value) {
