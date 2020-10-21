@@ -243,9 +243,20 @@ bool fiesta::ESDFMap::UpdateOccupancy(bool global_map) {
     double log_odds_update = (num_hit_[idx] >= num_miss_[idx] - num_hit_[idx] ? prob_hit_log_ : prob_miss_log_);
 
     num_hit_[idx] = num_miss_[idx] = 0;
-    if (distance_buffer_[idx] < 0) {
-      distance_buffer_[idx] = infinity_;
-      InsertIntoList(reserved_idx_4_undefined_, idx);
+
+    // Quick Hack
+    for(size_t i = -2; i < 3; ++i){
+      for(size_t j = -2; j < 3; ++j){
+        for(size_t k = -2; k < 3; ++k){
+          Eigen::Vector3i off;
+          off << i, j, k;
+          int idx_up = Vox2Idx(xx.point_ + off);
+          if (distance_buffer_[idx_up] < 0) {
+            distance_buffer_[idx_up] = infinity_;
+            InsertIntoList(reserved_idx_4_undefined_, idx_up);
+          }
+        }
+      }
     }
     if ((log_odds_update >= 0 &&
         occupancy_buffer_[idx] >= clamp_max_log_) ||
