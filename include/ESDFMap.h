@@ -94,6 +94,9 @@ class ESDFMap {
   double resolution_, resolution_inv_;
   Eigen::Vector3i max_vec_, min_vec_, last_max_vec_, last_min_vec_;
 
+  // unexplored update
+  double unexplored_update_range_;
+
 
   // DLL Operations
   void DeleteFromList(int link, int idx);
@@ -147,6 +150,7 @@ class ESDFMap {
 // Local Range
   void SetUpdateRange(Eigen::Vector3d min_pos, Eigen::Vector3d max_pos, bool new_vec = true);
   void SetOriginalRange();
+  void SetUnexploredUpdateDistance(double dist) {unexplored_update_range_ = dist;};
 
 #ifndef PROBABILISTIC
   // For Deterministic Occupancy Grid

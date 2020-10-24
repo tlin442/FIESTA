@@ -162,6 +162,8 @@ struct Parameters {
   Eigen::Vector3d radius_;
   // transforms
   Eigen::Matrix4d T_B_C_, T_D_B_;
+  // update range for unexplored voxels
+  double unexplored_update_range_;
 
   // Additional parameters
   // Frames for world and uav

@@ -108,7 +108,8 @@ Fiesta<DepthMsgType, PoseMsgType>::Fiesta(ros::NodeHandle node, tf::TransformLis
      inv_esdf_map_ = new ESDFMap(parameters_.l_cornor_, parameters_.resolution_, parameters_.map_size_);
 #endif
 #endif
-
+     
+     esdf_map_->SetUnexploredUpdateDistance(parameters_.unexplored_update_range_);
 #ifdef PROBABILISTIC
      esdf_map_->SetParameters(parameters_.p_hit_, parameters_.p_miss_,
                               parameters_.p_min_, parameters_.p_max_, parameters_.p_occ_);

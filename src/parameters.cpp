@@ -44,6 +44,7 @@ void fiesta::Parameters::SetParameters(const ros::NodeHandle &node) {
   // Added code
   node.param<std::string>("world_frame", world_frame_, std::string("odom_frame"));
   node.param<std::string>("camera_frame", camera_frame_, std::string("d400_link"));
+  node.param<double>("unexplored_update_range", unexplored_update_range_, 1.5f);
   // End added code
 
 #ifdef HASH_TABLE

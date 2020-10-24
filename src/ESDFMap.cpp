@@ -133,6 +133,7 @@ fiesta::ESDFMap::ESDFMap(Eigen::Vector3d origin, double resolution_, int reserve
   infinity_ = 10000;
   undefined_ = -10000;
   reserved_idx_4_undefined_ = 0;
+  unexplored_update_range_ = 0.0;
 #ifdef BLOCK
   block_bit_ = 3;
   block_ = (1 << block_bit_);
@@ -244,19 +245,9 @@ bool fiesta::ESDFMap::UpdateOccupancy(bool global_map) {
 
     num_hit_[idx] = num_miss_[idx] = 0;
 
-    // Quick Hack
-    for(size_t i = -2; i < 3; ++i){
-      for(size_t j = -2; j < 3; ++j){
-        for(size_t k = -2; k < 3; ++k){
-          Eigen::Vector3i off;
-          off << i, j, k;
-          int idx_up = Vox2Idx(xx.point_ + off);
-          if (distance_buffer_[idx_up] < 0) {
-            distance_buffer_[idx_up] = infinity_;
-            InsertIntoList(reserved_idx_4_undefined_, idx_up);
-          }
-        }
-      }
+    if (distance_buffer_[idx] < 0) {
+      distance_buffer_[idx] = infinity_;
+      InsertIntoList(reserved_idx_4_undefined_, idx);
     }
     if ((log_odds_update >= 0 &&
         occupancy_buffer_[idx] >= clamp_max_log_) ||
@@ -353,8 +344,9 @@ void fiesta::ESDFMap::UpdateESDF() {
 
     update_queue_.pop();
     int idx = Vox2Idx(xx.point_);
-    if (xx.distance_ != distance_buffer_[idx])
-      continue;
+    if (xx.distance_ != distance_buffer_[idx]){
+        continue;
+    }
     times++;
     bool change = false;
     for (int i = 0; i < num_dirs_; i++) {
@@ -390,7 +382,7 @@ void fiesta::ESDFMap::UpdateESDF() {
         int new_pos_id = Vox2Idx(new_pos);
 
         double tmp = Dist(new_pos, closest_obstacle_[idx]);
-        if (distance_buffer_[new_pos_id] > tmp) {
+        if (distance_buffer_[new_pos_id] > tmp || (distance_buffer_[new_pos_id] == undefined_ && xx.distance_ < unexplored_update_range_)) {
           distance_buffer_[new_pos_id] = tmp;
           DeleteFromList(Vox2Idx(closest_obstacle_[new_pos_id]), new_pos_id);
 
