@@ -123,6 +123,8 @@ class ESDFMap {
   bool UpdateOccupancy(bool global_map);
   void UpdateESDF();
 
+  double GetResolution(){ return resolution_; };
+
 // Occupancy Management
   int SetOccupancy(Eigen::Vector3d pos, int occ);
   int SetOccupancy(Eigen::Vector3i vox, int occ);
