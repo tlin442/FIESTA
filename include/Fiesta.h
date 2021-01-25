@@ -416,8 +416,10 @@ void Fiesta<DepthMsgType, PoseMsgType>::SynchronizationAndProcess() {
 #else
           tf::StampedTransform world_to_camera;
           try{
-               tf_listener_->waitForTransform(parameters_.world_frame_, parameters_.camera_frame_, depth_time, ros::Duration(0.04));
-               tf_listener_->lookupTransform(parameters_.world_frame_, parameters_.camera_frame_, depth_time, world_to_camera);
+               //tf_listener_->waitForTransform(parameters_.world_frame_, parameters_.camera_frame_, depth_time, ros::Duration(0.04));
+               //tf_listener_->lookupTransform(parameters_.world_frame_, parameters_.camera_frame_, depth_time, world_to_camera);
+               tf_listener_->waitForTransform(parameters_.world_frame_, depth_queue_.front()->header.frame_id, depth_time, ros::Duration(0.04));
+               tf_listener_->lookupTransform(parameters_.world_frame_, depth_queue_.front()->header.frame_id, depth_time, world_to_camera);
                new_pos = true;
 
                sync_pos_(0) = world_to_camera.getOrigin().x();
