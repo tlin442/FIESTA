@@ -23,6 +23,7 @@
 #include <sensor_msgs/Image.h>
 #include <visualization_msgs/Marker.h>
 #include <sensor_msgs/PointCloud.h>
+#include <sensor_msgs/point_cloud_conversion.h>
 #include <unordered_set>
 namespace fiesta {
 
@@ -45,7 +46,7 @@ private:
 #ifndef PROBABILISTIC
     sensor_msgs::PointCloud2::ConstPtr sync_pc_;
 #endif
-    ros::Publisher slice_pub_, occupancy_pub_, text_pub_;
+    ros::Publisher slice_pub_, occupancy_pub_, occupancy_pub_pc2_, text_pub_;
     ros::Subscriber transform_sub_, depth_sub_;
     ros::Timer update_mesh_timer_;
     Eigen::Vector3d sync_pos_, raycast_origin_, cur_pos_;
@@ -138,6 +139,7 @@ Fiesta<DepthMsgType, PoseMsgType>::Fiesta(ros::NodeHandle node, tf::TransformLis
 
      slice_pub_ = node.advertise<visualization_msgs::Marker>("ESDFMap/slice", 1, true);
      occupancy_pub_ = node.advertise<sensor_msgs::PointCloud>("ESDFMap/occ_pc", 1, true);
+     occupancy_pub_pc2_ = node.advertise<sensor_msgs::PointCloud2>("ESDFMap/occ_pc2", 1, true);
      text_pub_ = node.advertise<visualization_msgs::Marker>("ESDFMap/text", 1, true);
 
      update_mesh_timer_ =
@@ -165,6 +167,10 @@ void Fiesta<DepthMsgType, PoseMsgType>::Visualization(ESDFMap *esdf_map, bool gl
           sensor_msgs::PointCloud pc;
           esdf_map->GetPointCloud(pc, parameters_.vis_lower_bound_, parameters_.vis_upper_bound_, parameters_.world_frame_);
           occupancy_pub_.publish(pc);
+
+          sensor_msgs::PointCloud2 pc2;
+          sensor_msgs::convertPointCloudToPointCloud2(pc, pc2);
+          occupancy_pub_pc2_.publish(pc2);
 
           visualization_msgs::Marker slice_marker;
           esdf_map->GetSliceMarker(slice_marker, parameters_.slice_vis_level_, 100,
