@@ -546,6 +546,7 @@ double fiesta::ESDFMap::GetDistWithGradTrilinear(Eigen::Vector3d pos,
 
 void fiesta::ESDFMap::GetPointCloud(sensor_msgs::PointCloud &m, int vis_lower_bound, int vis_upper_bound, std::string world_frame) {
   m.header.frame_id = world_frame;
+  m.header.stamp = ros::Time::now();
   m.points.clear();
 #ifdef HASH_TABLE
   for (int i = 1; i < count; i++) {
